@@ -61,7 +61,7 @@ public class SQLiteLib extends JavaPlugin {
             Bukkit.getLogger().severe("SQLiteLib is not yet ready! You have you called hookSQLiteLib() too early.");
             return null;
         }
-        return new SQLiteLib();
+        return plugin;
     }
 
 	/**
