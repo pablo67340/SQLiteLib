@@ -1,6 +1,6 @@
 name: SQLiteLib
 main: com.pablo67340.SQLiteLib.Main.SQLiteLib
-version: 1.0
+version: 1.3
 author: pablo67340
 description: Plugin for any server.
 commands:

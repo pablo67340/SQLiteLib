@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.pablo67340.SQLiteLib.Database.Database;
@@ -55,7 +56,7 @@ public class SQLiteLib extends JavaPlugin {
 	 * 
 	 * @return the {@link SQLiteLib}'s prefix.
 	 */
-	public static SQLiteLib hookSQLiteLib() {
+	public static SQLiteLib hookSQLiteLib(Plugin hostPlugin) {
         SQLiteLib plugin = (SQLiteLib) Bukkit.getPluginManager().getPlugin("SQLiteLib");
         if (plugin == null) {
             Bukkit.getLogger().severe("SQLiteLib is not yet ready! You have you called hookSQLiteLib() too early.");
@@ -75,7 +76,24 @@ public class SQLiteLib extends JavaPlugin {
 	 *            Sets the string sent to player when an item cannot be purchased.
 	 */
 	public void initializeDatabase(String databaseName, String createStatement) {
-		Database db = new SQLite(databaseName, createStatement);
+		Database db = new SQLite(databaseName, createStatement, this.getDataFolder());
+		db.load();
+		databases.put(databaseName, db);
+	}
+	
+	/**
+	 * 
+	 * @param Database
+	 *            name
+	 * @param Initial
+	 *            statement once the database is created. Usually used to create
+	 *            tables.
+	 * 
+	 *            Sets the string sent to player when an item cannot be purchased.
+	 * @param Plugin to create database file inside.
+	 */
+	public void initializeDatabase(Plugin plugin, String databaseName, String createStatement) {
+		Database db = new SQLite(databaseName, createStatement, plugin.getDataFolder());
 		db.load();
 		databases.put(databaseName, db);
 	}

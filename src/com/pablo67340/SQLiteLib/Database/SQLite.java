@@ -16,16 +16,22 @@ public class SQLite extends Database {
 
 	private String createTestTable = "CREATE TABLE IF NOT EXISTS test (" + "`test` varchar(32) NOT NULL,"
 			+ "PRIMARY KEY (`test`)" + ");";
+	
+	private String customCreateString;
+	
+	private File dataFolder;
 
-	public SQLite(String databaseName, String createStatement) {
+	public SQLite(String databaseName, String createStatement, File folder) {
 		dbname = databaseName;
+		customCreateString = createStatement;
+		dataFolder = folder;
 	}
 
 	public Connection getSQLConnection() {
-		File dataFolder = new File(SQLiteLib.getInstance().getDataFolder(), dbname + ".db");
-		if (!dataFolder.exists()) {
+		File folder = new File(dataFolder, dbname + ".db");
+		if (!folder.exists()) {
 			try {
-				dataFolder.createNewFile();
+				folder.createNewFile();
 			} catch (IOException e) {
 				SQLiteLib.getInstance().getLogger().log(Level.SEVERE, "File write error: " + dbname + ".db");
 			}
@@ -35,7 +41,7 @@ public class SQLite extends Database {
 				return connection;
 			}
 			Class.forName("org.sqlite.JDBC");
-			connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
+			connection = DriverManager.getConnection("jdbc:sqlite:" + folder);
 			return connection;
 		} catch (SQLException ex) {
 			SQLiteLib.getInstance().getLogger().log(Level.SEVERE, "SQLite exception on initialize", ex);
@@ -51,10 +57,15 @@ public class SQLite extends Database {
 		try {
 			Statement s = connection.createStatement();
 			s.executeUpdate(createTestTable);
+			s.executeUpdate(customCreateString);
 			s.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		initialize();
+	}
+	
+	public File getDataFolder() {
+		return dataFolder;
 	}
 }
