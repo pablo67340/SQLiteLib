@@ -1,0 +1,29 @@
+name: SQLiteLib
+main: com.pablo67340.SQLiteLib.Main.SQLiteLib
+version: '${project.version}'
+api-version: '${minecraft.api.version}'
+author: pablo67340
+website: https://github.com/pablo67340/SQLiteLib
+description: Simple, safe and fast SQLite storage for plugins. Ditch those YML files!
+commands:
+  sqlite:
+    description: Inspect and manage SQLiteLib databases.
+    usage: /<command> help
+    aliases: [sl]
+permissions:
+  sqlite.use:
+    description: Grants every SQLiteLib command.
+    default: op
+    children:
+      sqlite.command.read: true
+      sqlite.command.write: true
+      sqlite.command.admin: true
+  sqlite.command.read:
+    description: list, info, tables, query, queryvalue, queryrow
+    default: op
+  sqlite.command.write:
+    description: execute (runs arbitrary SQL that can modify data)
+    default: op
+  sqlite.command.admin:
+    description: init, backup, vacuum
+    default: op

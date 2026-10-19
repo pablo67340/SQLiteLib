@@ -1,103 +1,118 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>${project.groupId}.${project.artifactId}</mainClass>
-        <api.version>1.8</api.version>
-    </properties>
-    <!-- Project information -->
+
     <groupId>com.pablo67340.SQLiteLib</groupId>
     <artifactId>SQLiteLib</artifactId>
-    <version>1.0</version>
+    <version>2.0.0</version>
+    <packaging>jar</packaging>
+
     <name>SQLiteLib</name>
+    <description>Simple, safe and fast SQLite for Spigot/Paper plugins and plain Java. Ditch those YML files!</description>
     <url>https://www.spigotmc.org/resources/sqlitelib.46801/</url>
-    <description>This library will make using SQLite super easy! Ditch those YML files, switch to SQLite!</description>
-    <!-- Organization -->
+
     <organization>
         <name>pablo67340</name>
         <url>https://github.com/pablo67340</url>
     </organization>
+
     <scm>
         <url>https://github.com/pablo67340/SQLiteLib</url>
-        <connection>scm:git:git://github.com:pablo67340/SQLiteLib.git</connection>
+        <connection>scm:git:https://github.com/pablo67340/SQLiteLib.git</connection>
         <developerConnection>scm:git:git@github.com:pablo67340/SQLiteLib.git</developerConnection>
     </scm>
+
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/pablo67340/SQLiteLib/issues</url>
     </issueManagement>
-    <distributionManagement>
-        <repository>
-            <id>pub-repo</id>
-            <name>Public Releases</name>
-            <url>http://nexus.theyeticave.net/content/repositories/pub_releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>pub-repo</id>
-            <name>Public Snapshots</name>
-            <url>http://nexus.theyeticave.net/content/repositories/pub_snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+        <!-- Oldest Minecraft API we compile against; also written into plugin.yml as api-version. -->
+        <minecraft.api.version>1.18</minecraft.api.version>
+        <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
+        <!-- Spigot and Paper bundle sqlite-jdbc at runtime; this is the floor we test against. -->
+        <sqlite.version>3.36.0.3</sqlite.version>
+        <junit.version>5.10.2</junit.version>
+    </properties>
+
     <repositories>
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <repository>
-            <id>SilkSpawners-Repo</id>
-            <url>https://ci.dustplanet.de/plugin/repository/everything/</url>
-        </repository>
-        <repository>
-	        <id>vault-repo</id>
-	        <url>http://nexus.hc.to/content/repositories/pub_releases</url>
-        </repository>
     </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.2-R0.1-SNAPSHOT</version>
+            <version>${spigot.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${sqlite.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <build>
-        <defaultGoal>clean install</defaultGoal>
-        <sourceDirectory>src/</sourceDirectory>
+        <defaultGoal>clean package</defaultGoal>
         <resources>
             <resource>
-                <directory>${project.basedir}</directory>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>plugin.yml</include>
-                </includes>
             </resource>
         </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
+                <version>3.13.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
                 <configuration>
-                    <artifactSet>
-                        <includes>
-                            <include>com.pablo67340.GUIShop</include>
-                        </includes>
-                    </artifactSet>
+                    <doclint>none</doclint>
+                    <quiet>true</quiet>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>attach-javadocs</id>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
