@@ -2,6 +2,7 @@ package com.pablo67340.SQLiteLib.Main;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -17,7 +18,7 @@ public class SQLiteLib extends JavaPlugin {
 
 	private static SQLiteLib INSTANCE;
 
-	private Map<String, Database> databases = new HashMap<>();
+	private final Map<String, Database> databases = new HashMap<>();
 
 	/**
 	 * Override the onEnable Method, which runs only when the plugin is fully
@@ -30,7 +31,9 @@ public class SQLiteLib extends JavaPlugin {
 	}
 
 	/**
-	 * Placeholder method for future features (Crash saving)
+	 * Placeholder method for future features.
+	 * <p>
+	 * For right now it is crash saving.
 	 */
 	@Override
 	public void onDisable() {
@@ -38,10 +41,18 @@ public class SQLiteLib extends JavaPlugin {
 	}
 
 	/**
+	 * Log a severe message.
+	 * @param msg The string message.
+	 * @param thrown Throwable associated with log message.
+	 */
+	public static void log(String msg, Throwable thrown) {
+		SQLiteLib.getInstance().getLogger().log(Level.SEVERE, msg, thrown);
+	}
+
+	/**
 	 * Get the current instance of the plugin within the server. 
-	 * Do not use this to hook into SQLiteLib, as it can become unsafe
-	 * in the future. Use the hookSQLiteLib method.
-	 * <p>
+	 * Do not use this to hook into SQLiteLib, as it can become
+	 * unsafe in the future. Use the hookSQLiteLib method.
 	 * 
 	 * @return the {@link SQLiteLib}'s prefix.
 	 */
@@ -50,9 +61,8 @@ public class SQLiteLib extends JavaPlugin {
 	}
 	
 	/**
-	 * Get the current instance of the plugin within the server. Needed to hook into
-	 * the API to save things.
-	 * <p>
+	 * Get the current instance of the plugin within the server.
+	 * Needed to hook into the API to save things.
 	 * 
 	 * @return the {@link SQLiteLib}'s prefix.
 	 */
@@ -66,14 +76,14 @@ public class SQLiteLib extends JavaPlugin {
     }
 
 	/**
+	 * Create and load a new database
 	 * 
-	 * @param Database
-	 *            name
-	 * @param Initial
-	 *            statement once the database is created. Usually used to create
-	 *            tables.
-	 * 
-	 *            Sets the string sent to player when an item cannot be purchased.
+	 * @param databaseName Database name.
+	 * @param createStatement Initial statement once the database is
+	 *                        created. Usually used to create tables.
+	 * 			  			  <p>
+	 *            			  Sets the string sent to player when an
+	 *            			  item cannot be purchased.
 	 */
 	public void initializeDatabase(String databaseName, String createStatement) {
 		Database db = new SQLite(databaseName, createStatement, this.getDataFolder());
@@ -82,15 +92,16 @@ public class SQLiteLib extends JavaPlugin {
 	}
 	
 	/**
-	 * 
-	 * @param Database
-	 *            name
-	 * @param Initial
-	 *            statement once the database is created. Usually used to create
-	 *            tables.
-	 * 
-	 *            Sets the string sent to player when an item cannot be purchased.
-	 * @param Plugin to create database file inside.
+	 * Create and load a new database within a different plugin's
+	 * folder.
+	 *
+	 * @param plugin Plugin to create database file inside.
+	 * @param databaseName Database name.
+	 * @param createStatement Initial statement once the database is
+	 *                        created. Usually used to create tables.
+	 * 						  <p>
+	 *            			  Sets the string sent to player when an
+	 *            			  item cannot be purchased.
 	 */
 	public void initializeDatabase(Plugin plugin, String databaseName, String createStatement) {
 		Database db = new SQLite(databaseName, createStatement, plugin.getDataFolder());
@@ -100,7 +111,6 @@ public class SQLiteLib extends JavaPlugin {
 
 	/**
 	 * Get the global list of currently loaded databased.
-	 * <p>
 	 * 
 	 * @return the {@link SQLiteLib}'s global database list.
 	 */
@@ -109,18 +119,18 @@ public class SQLiteLib extends JavaPlugin {
 	}
 
 	/**
-	 * 
-	 * @param Database
-	 *            name
-	 * 
-	 *            Gets a specific {@link Database}'s class.
+	 * Gets a specific {@link Database}'s class.
+	 *
+	 * @param databaseName Database name
+	 *
+	 * @return The database.
 	 */
 	public Database getDatabase(String databaseName) {
 		return getDatabases().get(databaseName);
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String args[]) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("sqlite") || command.getName().equalsIgnoreCase("sl")) {
 			if (sender.hasPermission("sqlite.use") || sender.isOp() || sender instanceof ConsoleCommandSender) {
 				if (args.length != 0) {
@@ -129,14 +139,15 @@ public class SQLiteLib extends JavaPlugin {
 					if (args[0].equalsIgnoreCase("execute")) {
 						if (args.length > 2) {
 							String database = args[1];
-							String statement = "";
+							StringBuilder statement = new StringBuilder();
 
-							for (int x = 2; x <= args.length - 1; x++) {
-								statement += args[x] + " ";
-							}
-							statement = statement.trim();
-							System.out.println("Statement: " + statement);
-							if (getDatabase(database).executeStatement(statement)) {
+							for (int x = 2; x <= args.length - 1; x++)
+								statement.append(args[x]).append(" ");
+							statement = new StringBuilder(statement.toString().trim());
+
+							//System.out.println("Statement: " + statement);
+
+							if (getDatabase(database).executeStatement(statement.toString())) {
 								sender.sendMessage("Query successful!");
 							} else {
 								sender.sendMessage("Query failure!");
@@ -150,16 +161,17 @@ public class SQLiteLib extends JavaPlugin {
 						
 						// INIT/Create
 					} else if (args[0].equalsIgnoreCase("init")) {
-						if (args.length == 2) {
+						if (args.length > 2) {
 							String database = args[1];
-							String statement = "";
+							StringBuilder statement = new StringBuilder();
 
-							for (int x = 2; x <= args.length - 1; x++) {
-								statement += args[x] + " ";
-							}
-							statement = statement.trim();
-							initializeDatabase(database, statement);
-							sender.sendMessage("Database intialized!");
+							for (int x = 2; x <= args.length - 1; x++)
+								statement.append(args[x]).append(" ");
+							statement = new StringBuilder(statement.toString().trim());
+
+							initializeDatabase(database, statement.toString());
+
+							sender.sendMessage("Database initialized!");
 						} else {
 							printHelp(sender);
 						}
@@ -169,34 +181,30 @@ public class SQLiteLib extends JavaPlugin {
 						
 						// QUERY VALUE
 					} else if (args[0].equalsIgnoreCase("queryvalue")) {
-						if (args.length > 1) {
+						if (args.length >= 3) {
 							String database = args[1];
 							String row = args[2];
-							String statement = "";
+							StringBuilder statement = new StringBuilder();
 
-							for (int x = 3; x <= args.length - 1; x++) {
-								statement += args[x] + " ";
-							}
-							statement = statement.trim();
+							for (int x = 3; x <= args.length - 1; x++)
+								statement.append(args[x]).append(" ");
+							statement = new StringBuilder(statement.toString().trim());
 							
-							sender.sendMessage((String)getDatabase(database).queryValue(statement, row));
-							
+							sender.sendMessage((String)getDatabase(database).queryValue(statement.toString(), row));
 						}
 					}else if (args[0].equalsIgnoreCase("queryrow")) {
-						if (args.length > 1) {
+						if (args.length > 3) {
 							String database = args[1];
 							String row = args[2];
-							String statement = "";
+							StringBuilder statement = new StringBuilder();
 
-							for (int x = 3; x <= args.length - 1; x++) {
-								statement += args[x] + " ";
-							}
-							statement = statement.trim();
+							for (int x = 3; x <= args.length - 1; x++)
+								statement.append(args[x]).append(" ");
+							statement = new StringBuilder(statement.toString().trim());
 							
-							for(Object obj : getDatabase(database).queryRow(statement, row)) {
+							for(Object obj : getDatabase(database).queryRow(statement.toString(), row))
 								sender.sendMessage((String)obj);
-							}
-							
+
 						}
 					}
 				} else {
