@@ -36,7 +36,7 @@
         <minecraft.api.version>1.18</minecraft.api.version>
         <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
         <!-- Spigot and Paper bundle sqlite-jdbc at runtime; this is the floor we test against. -->
-        <sqlite.version>3.36.0.3</sqlite.version>
+        <sqlite.version>3.41.2.2</sqlite.version>
         <junit.version>5.10.2</junit.version>
     </properties>
 
